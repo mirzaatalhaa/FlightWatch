@@ -885,6 +885,12 @@
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
+/* Lock screen input placeholders */
+.os-lock-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+  opacity: 1 !important;
+}
+
 .os-lock-form-container {
   align-self: center;
   width: 100%;

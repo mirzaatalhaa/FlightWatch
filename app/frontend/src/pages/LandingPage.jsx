@@ -18,7 +18,7 @@ import {
   EyeOff,
   Wifi
 } from 'lucide-react';
-import a350Image from '../assets/a350.png';
+import a350Image from '../assets/a350-2.jpg';
 import {
   SUGGESTED_AIRLINES,
   SUGGESTED_AIRCRAFT,
@@ -880,6 +880,7 @@ const LandingPage = () => {
                     >
                       <input
                         type="text"
+                        className="os-lock-input"
                         value={authName}
                         onChange={e => setAuthName(e.target.value)}
                         disabled={authSubmitting}
@@ -905,6 +906,7 @@ const LandingPage = () => {
                     <div style={{ marginBottom: '8px' }}>
                       <input
                         type="email"
+                        className="os-lock-input"
                         value={authEmail}
                         onChange={e => setAuthEmail(e.target.value)}
                         disabled={authSubmitting}
@@ -929,6 +931,7 @@ const LandingPage = () => {
                     <div style={{ position: 'relative', marginBottom: '8px' }}>
                       <input
                         type={showAuthPassword ? 'text' : 'password'}
+                        className="os-lock-input"
                         value={authPassword}
                         onChange={e => setAuthPassword(e.target.value)}
                         disabled={authSubmitting}
@@ -982,6 +985,7 @@ const LandingPage = () => {
                     >
                       <input
                         type="password"
+                        className="os-lock-input"
                         value={authConfirmPassword}
                         onChange={e => setAuthConfirmPassword(e.target.value)}
                         disabled={authSubmitting}
