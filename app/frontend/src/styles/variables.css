@@ -1,0 +1,142 @@
+/* ═══════════════════════════════════════════════════════
+   FlightWatch Design Tokens — Apple-Inspired Theme
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Colors: Brand & Accent ── */
+  --color-primary: #0071e3;          /* Action Blue */
+  --color-primary-focus: #0071e3;    /* Focus Blue */
+  --color-primary-on-dark: #2997ff;  /* Sky Link Blue */
+  --color-on-primary: #ffffff;
+  
+  /* ── Colors: Muted Palette ── */
+  --color-muted-blue: #8e8e93;
+  --color-muted-green: #30d158;
+  --color-muted-orange: #ff9f0a;
+  --color-muted-red: #ff453a;
+  --color-dark-navy: #161e2b;
+  --color-window-border: rgba(255, 255, 255, 0.1);
+  
+  /* ── Colors: Surface (Dark Theme Default) ── */
+  --color-canvas: #121212;           /* Dark canvas background */
+  --color-canvas-parchment: #1c1c1e; /* Secondary dark background */
+  --color-surface-pearl: #2c2c2e;    /* Tertiary dark background */
+  --color-surface-tile-1: #1c1c1e;   /* Dark Tile 1 */
+  --color-surface-tile-2: #2c2c2e;   /* Dark Tile 2 */
+  --color-surface-tile-3: #3a3a3c;   /* Dark Tile 3 */
+  --color-surface-black: #000000;    /* Pure Black */
+  --color-surface-chip-translucent: rgba(48, 48, 50, 0.64);
+  --color-on-dark: #ffffff;
+
+  /* ── Colors: Text (Dark Theme Default) ── */
+  --color-ink: #ffffff;              /* White Ink */
+  --color-body: #e5e5ea;             /* Gray-white body */
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #8e8e93;
+  --color-ink-muted-80: #d1d1d6;
+  --color-ink-muted-48: #8e8e93;
+
+  /* ── Colors: Hairlines & Borders (Dark Theme Default) ── */
+  --color-divider-soft: #2c2c2e;     /* Dark divider */
+  --color-hairline: #3a3a3c;         /* Dark border */
+
+  /* ── IPados Window System Variables (Dark Theme Default) ── */
+  --window-bg: rgba(28, 28, 30, 0.88);
+  --window-border: rgba(255, 255, 255, 0.12);
+  --window-list-bg: rgba(255, 255, 255, 0.04);
+  --window-list-border: rgba(255, 255, 255, 0.06);
+  --window-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+  --card-bg-mock: rgba(255, 255, 255, 0.04);
+  --card-border-mock: rgba(255, 255, 255, 0.08);
+  --bar-bg-mock: rgba(255, 255, 255, 0.1);
+  --sidebar-sep-mock: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-border: rgba(255, 255, 255, 0.15);
+  --input-focus-bg: rgba(255, 255, 255, 0.12);
+  --carrier-btn-bg: rgba(41, 151, 255, 0.12);
+  --carrier-btn-border: rgba(41, 151, 255, 0.3);
+  --window-header-bg: rgba(45, 45, 48, 0.65);
+}
+
+[data-theme='light'] {
+  /* ── Colors: Brand & Accent (Light Mode overrides) ── */
+  --color-primary: #0066cc;          /* Action Blue */
+  --color-primary-focus: #0071e3;    /* Focus Blue */
+  --color-primary-on-dark: #2997ff;  /* Sky Link Blue */
+  
+  /* ── Colors: Muted Palette (Light Mode overrides) ── */
+  --color-muted-blue: #5c768d;
+  --color-muted-green: #5a8f76;
+  --color-muted-orange: #c49b45;
+  --color-muted-red: #b35c5c;
+  --color-window-border: rgba(0, 0, 0, 0.08);
+  
+  /* ── Colors: Surface (Light Mode overrides) ── */
+  --color-canvas: #ffffff;           /* Pure White */
+  --color-canvas-parchment: #f5f5f7; /* Apple off-white Parchment */
+  --color-surface-pearl: #fafafc;    /* Near-white for button fills */
+  --color-surface-tile-1: #272729;   /* Near-Black Tile 1 stays same */
+  --color-surface-chip-translucent: rgba(210, 210, 215, 0.64);
+
+  /* ── Colors: Text (Light Mode overrides) ── */
+  --color-ink: #1d1d1f;              /* Near-Black Ink */
+  --color-body: #1d1d1f;
+  --color-body-muted: #cccccc;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+
+  /* ── Colors: Hairlines & Borders (Light Mode overrides) ── */
+  --color-divider-soft: #f0f0f0;     /* Divider soft */
+  --color-hairline: #e0e0e0;         /* Hairline border */
+
+  /* ── IPados Window System Variables (Light Mode overrides) ── */
+  --window-bg: rgba(255, 255, 255, 0.88);
+  --window-border: rgba(255, 255, 255, 0.4);
+  --window-list-bg: rgba(0, 0, 0, 0.03);
+  --window-list-border: rgba(0, 0, 0, 0.05);
+  --window-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  --card-bg-mock: rgba(0, 0, 0, 0.04);
+  --card-border-mock: rgba(0, 0, 0, 0.05);
+  --bar-bg-mock: rgba(0, 0, 0, 0.05);
+  --sidebar-sep-mock: rgba(0, 0, 0, 0.08);
+  --input-bg: rgba(255, 255, 255, 0.8);
+  --input-border: rgba(0, 0, 0, 0.12);
+  --input-focus-bg: #ffffff;
+  --carrier-btn-bg: rgba(0, 102, 204, 0.08);
+  --carrier-btn-border: rgba(0, 102, 204, 0.2);
+  --window-header-bg: rgba(245, 245, 247, 0.6);
+}
+
+:root {
+  /* ── Font Stacks ── */
+  --font-display: "SF Pro Display", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-ui: "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* ── Spacing ── */
+  --sp-xxs: 4px;
+  --sp-xs: 8px;
+  --sp-sm: 12px;
+  --sp-md: 17px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+  --sp-xxl: 48px;
+  --sp-section: 80px;
+
+  /* ── Radii ── */
+  --rounded-none: 0px;
+  --rounded-xs: 5px;
+  --rounded-sm: 8px;
+  --rounded-md: 11px;
+  --rounded-lg: 18px;
+  --rounded-pill: 9999px;
+  --rounded-full: 9999px;
+
+  /* ── Elevation ── */
+  --product-shadow: 3px 5px 30px 0px rgba(0, 0, 0, 0.22);
+
+  /* ── Layout ── */
+  --sidebar-width: 240px;
+  --global-nav-height: 44px;
+  --sub-nav-height: 52px;
+}
