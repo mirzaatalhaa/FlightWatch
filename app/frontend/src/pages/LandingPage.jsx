@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { useAuth } from '../context/AuthContext';
 import { useSightings } from '../context/SightingsContext';
+import { useTime } from '../context/TimeContext';
+import LockScreenTime from '../components/LockScreenTime';
 import {
   Plane,
   Camera,
@@ -62,19 +64,19 @@ const DEFAULT_WINDOW_POSITIONS = {
 const LandingPage = () => {
   const { user, login, register, updateUserProfile } = useAuth();
   useEffect(() => {
-  setOpenApps([]);
-  setMinimizedApps([]);
-  setActiveApp(null);
-  setClosingApps([]);
-  setWindowSizes({});
-  setWindowPositions({});
-  setWindowDims({});
-}, [user]);
+    setOpenApps([]);
+    setMinimizedApps([]);
+    setActiveApp(null);
+    setClosingApps([]);
+    setWindowSizes({});
+    setWindowPositions({});
+    setWindowDims({});
+    setAuthMode('login');
+  }, [user]);
   const { sightings, addSighting, deleteSighting, analytics } = useSightings();
 
-  // OS Clock & Date State
-  const [currentTime, setCurrentTime] = useState('09:41 AM');
-  const [currentDate, setCurrentDate] = useState('');
+  // OS Clock & Date State from global context
+  const { currentTime, currentDate } = useTime();
 
   // Wallpaper state: 'a350', 'sunset', 'radar'
   const [wallpaper, setWallpaper] = useState('a350');
@@ -103,6 +105,9 @@ const LandingPage = () => {
 
   // Dock slide-up & auto-hide states
   const dockRef = useRef(null);
+  const cardRef = useRef(null);
+  const nameFieldRef = useRef(null);
+  const confirmFieldRef = useRef(null);
   const [dockHovered, setDockHovered] = useState(false);
 
   // iPadOS Stage Manager & Widget states
@@ -124,30 +129,9 @@ const LandingPage = () => {
   // Dock Context Menu state
   const [activeDockMenu, setActiveDockMenu] = useState(null); // { appName, x, y }
 
-  // Update Clock and Date inside the tablet OS
-  useEffect(() => {
-    const updateTimeAndDate = () => {
-      const now = new Date();
+  // Clock update handled globally by TimeContext
 
-      // Clock: 12-hour format with AM/PM
-      let hours = now.getHours();
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      setCurrentTime(`${hours}:${minutes} ${ampm}`);
-
-      // Date: E.g., "Friday, June 12, 2026"
-      const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
-      setCurrentDate(now.toLocaleDateString(undefined, options));
-    };
-
-    updateTimeAndDate();
-    const timer = setInterval(updateTimeAndDate, 30000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const hasFullscreenApp = openApps.some(appName => 
+  const hasFullscreenApp = openApps.some(appName =>
     windowSizes[appName] === 'fullscreen' && !minimizedApps.includes(appName)
   );
 
@@ -252,21 +236,80 @@ const LandingPage = () => {
     }
   };
 
+  // Transition auth mode smoothly with GSAP
+  const handleSwitchAuthMode = (newMode) => {
+    if (newMode === authMode) return;
+
+    const isRegistering = newMode === 'register';
+
+    if (!cardRef.current) {
+      setAuthMode(newMode);
+      setAuthError('');
+      return;
+    }
+
+    // 1. Measure the card's current height before changes
+    const originalCardHeight = cardRef.current.getBoundingClientRect().height;
+
+    // 2. Lock the card height and overflow
+    cardRef.current.style.height = `${originalCardHeight}px`;
+    cardRef.current.style.overflow = 'hidden';
+
+    // 3. Update React state immediately
+    setAuthMode(newMode);
+    setAuthError('');
+
+    // 4. Trigger GSAP animations for internal fields
+    gsap.to(nameFieldRef.current, {
+      height: isRegistering ? 38 : 0,
+      marginBottom: isRegistering ? 8 : 0,
+      opacity: isRegistering ? 1 : 0,
+      duration: 0.4,
+      ease: 'power3.inOut'
+    });
+
+    gsap.to(confirmFieldRef.current, {
+      height: isRegistering ? 38 : 0,
+      marginBottom: isRegistering ? 8 : 0,
+      opacity: isRegistering ? 1 : 0,
+      duration: 0.4,
+      ease: 'power3.inOut'
+    });
+
+    // 5. Measure new content height and animate card container
+    requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      // Temporarily clear inline height to measure natural height
+      cardRef.current.style.height = 'auto';
+      const targetCardHeight = cardRef.current.getBoundingClientRect().height;
+
+      // Restore original height for GSAP transition start
+      cardRef.current.style.height = `${originalCardHeight}px`;
+
+      gsap.to(cardRef.current, {
+        height: targetCardHeight,
+        duration: 0.4,
+        ease: 'power3.inOut',
+        clearProps: 'height,overflow'
+      });
+    });
+  };
+
   // Launch app or focus active app
   const launchApp = (appName) => {
     if (!openApps.includes(appName)) {
       setOpenApps(prev => [...prev, appName]);
-      
+
       // Calculate offset based on number of open apps to cascade windows
       const offset = (openApps.length * 20) % 100;
-      
+
       // Get the simulated screen width dynamically, defaulting to 976px
       const screenEl = document.querySelector('.os-tablet-screen');
       const screenWidth = screenEl ? screenEl.clientWidth : 976;
-      
+
       const defaultW = DEFAULT_WINDOW_SIZES[appName]?.w || 680;
       const defaultPos = DEFAULT_WINDOW_POSITIONS[appName];
-      
+
       // Center the window relative to the entire screen width
       const initialX = Math.max(16, (screenWidth - defaultW) / 2);
       const initialY = defaultPos ? defaultPos.y : 50;
@@ -357,7 +400,7 @@ const LandingPage = () => {
     const startY = windowPositions[appName]?.y || defaultY;
     const startClientX = e.clientX;
     const startClientY = e.clientY;
-    
+
     const windowEl = document.querySelector(`[data-app-name="${appName}"]`);
 
     const handlePointerMove = (moveEvent) => {
@@ -365,7 +408,7 @@ const LandingPage = () => {
       const dy = moveEvent.clientY - startClientY;
       const newX = startX + dx;
       const newY = startY + dy;
-      
+
       if (windowEl) {
         windowEl.style.left = `${newX}px`;
         windowEl.style.top = `${newY}px`;
@@ -375,7 +418,7 @@ const LandingPage = () => {
     const handlePointerUp = (upEvent) => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
-      
+
       const dx = upEvent.clientX - startClientX;
       const dy = upEvent.clientY - startClientY;
       const finalX = startX + dx;
@@ -406,7 +449,7 @@ const LandingPage = () => {
     const currentH = windowDims[appName]?.h || defaultH;
     const startClientX = e.clientX;
     const startClientY = e.clientY;
-    
+
     const windowEl = document.querySelector(`[data-app-name="${appName}"]`);
 
     const handlePointerMove = (moveEvent) => {
@@ -425,7 +468,7 @@ const LandingPage = () => {
     const handlePointerUp = (upEvent) => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
-      
+
       const dx = upEvent.clientX - startClientX;
       const dy = upEvent.clientY - startClientY;
       const finalW = Math.max(280, currentW + dx);
@@ -521,12 +564,12 @@ const LandingPage = () => {
       case 'Airports': return <AirportsView />;
       case 'Profile': return <ProfileView />;
       case 'Settings': return (
-        <SettingsView 
-          theme={theme} 
-          setTheme={setTheme} 
-          wallpaper={wallpaper} 
-          setWallpaper={setWallpaper} 
-          handleResetData={handleResetData} 
+        <SettingsView
+          theme={theme}
+          setTheme={setTheme}
+          wallpaper={wallpaper}
+          setWallpaper={setWallpaper}
+          handleResetData={handleResetData}
         />
       );
       default: return null;
@@ -748,54 +791,50 @@ const LandingPage = () => {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '100px 0 36px',
                 zIndex: 50
               }}>
 
-                {/* Top: Time & Date */}
-                <div style={{ textAlign: 'center', userSelect: 'none' }}>
-                  <div style={{
-                    fontSize: '80px',
-                    fontWeight: 'bold',
-                    letterSpacing: '-3px',
-                    color: '#ffffff',
-                    lineHeight: 1,
-                    textShadow: '0 2px 20px rgba(0,0,0,0.4)'
-                  }}>{currentTime}</div>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    color: 'rgba(255,255,255,0.75)',
-                    marginTop: '8px',
-                    letterSpacing: '0.2px',
-                    textShadow: '0 1px 8px rgba(0,0,0,0.4)'
-                  }}>{currentDate}</div>
+                {/* Top: Time & Date (Using global LockScreenTime component) - Absolutely Positioned */}
+                <div style={{
+                  position: 'absolute',
+                  top: '80px',
+                  left: 0,
+                  right: 0,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  pointerEvents: 'none'
+                }}>
+                  <LockScreenTime align="center" />
                 </div>
 
-                {/* Bottom: Frosted sign-in panel */}
-                <div style={{
-                  width: '100%',
-                  maxWidth: '340px',
-                  background: 'rgba(255,255,255,0.15)',
-                  backdropFilter: 'blur(40px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-                  borderRadius: '24px',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  padding: '28px 24px 20px',
-                  boxShadow: '0 8px 40px rgba(0,0,0,0.3)'
-                }}>
+                {/* Bottom: Frosted sign-in panel - Absolutely Positioned below the clock */}
+                <div 
+                  ref={cardRef}
+                  style={{
+                    position: 'absolute',
+                    top: '230px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '100%',
+                    maxWidth: '340px',
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(40px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    padding: '20px 24px 16px',
+                    boxShadow: '0 8px 40px rgba(0,0,0,0.3)',
+                    boxSizing: 'border-box'
+                  }}
+                >
 
                   {/* Title */}
                   <div style={{
                     textAlign: 'center',
-                    marginBottom: '20px'
+                    marginBottom: '12px'
                   }}>
                     <div style={{
-                      fontSize: '20px',
+                      fontSize: '18px',
                       fontWeight: '600',
                       color: '#ffffff',
                       letterSpacing: '-0.3px',
@@ -806,7 +845,7 @@ const LandingPage = () => {
                     <div style={{
                       fontSize: '12px',
                       color: 'rgba(255,255,255,0.6)',
-                      marginTop: '3px'
+                      marginTop: '2px'
                     }}>
                       {authMode === 'login' ? 'Sign in to FlightWatch OS' : 'Register as a new operator'}
                     </div>
@@ -814,8 +853,8 @@ const LandingPage = () => {
 
                   {authError && (
                     <div style={{
-                      marginBottom: '12px',
-                      padding: '8px 12px',
+                      marginBottom: '10px',
+                      padding: '6px 12px',
                       borderRadius: '10px',
                       background: 'rgba(255,59,48,0.25)',
                       border: '1px solid rgba(255,59,48,0.35)',
@@ -828,18 +867,27 @@ const LandingPage = () => {
                     </div>
                   )}
 
-                  <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {authMode === 'register' && (
+                  <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+                    {/* Full Name Input wrapper */}
+                    <div
+                      ref={nameFieldRef}
+                      style={{
+                        height: authMode === 'register' ? '38px' : '0px',
+                        opacity: authMode === 'register' ? 1 : 0,
+                        marginBottom: authMode === 'register' ? '8px' : '0px',
+                        overflow: 'hidden'
+                      }}
+                    >
                       <input
                         type="text"
                         value={authName}
                         onChange={e => setAuthName(e.target.value)}
                         disabled={authSubmitting}
                         placeholder="Your full name"
-                        required
+                        required={authMode === 'register'}
                         style={{
                           width: '100%',
-                          height: '44px',
+                          height: '38px',
                           borderRadius: '12px',
                           border: '1px solid rgba(255,255,255,0.2)',
                           background: 'rgba(255,255,255,0.12)',
@@ -852,31 +900,33 @@ const LandingPage = () => {
                           backdropFilter: 'blur(10px)'
                         }}
                       />
-                    )}
+                    </div>
 
-                    <input
-                      type="email"
-                      value={authEmail}
-                      onChange={e => setAuthEmail(e.target.value)}
-                      disabled={authSubmitting}
-                      placeholder="Email address"
-                      required
-                      style={{
-                        width: '100%',
-                        height: '44px',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        background: 'rgba(255,255,255,0.12)',
-                        color: '#ffffff',
-                        fontSize: '14px',
-                        padding: '0 14px',
-                        outline: 'none',
-                        fontFamily: 'var(--font-ui)',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                    <div style={{ marginBottom: '8px' }}>
+                      <input
+                        type="email"
+                        value={authEmail}
+                        onChange={e => setAuthEmail(e.target.value)}
+                        disabled={authSubmitting}
+                        placeholder="Email address"
+                        required
+                        style={{
+                          width: '100%',
+                          height: '38px',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          background: 'rgba(255,255,255,0.12)',
+                          color: '#ffffff',
+                          fontSize: '14px',
+                          padding: '0 14px',
+                          outline: 'none',
+                          fontFamily: 'var(--font-ui)',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
 
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative', marginBottom: '8px' }}>
                       <input
                         type={showAuthPassword ? 'text' : 'password'}
                         value={authPassword}
@@ -886,7 +936,7 @@ const LandingPage = () => {
                         required
                         style={{
                           width: '100%',
-                          height: '44px',
+                          height: '38px',
                           borderRadius: '12px',
                           border: '1px solid rgba(255,255,255,0.2)',
                           background: 'rgba(255,255,255,0.12)',
@@ -920,17 +970,26 @@ const LandingPage = () => {
                       </button>
                     </div>
 
-                    {authMode === 'register' && (
+                    {/* Confirm Password Input wrapper */}
+                    <div
+                      ref={confirmFieldRef}
+                      style={{
+                        height: authMode === 'register' ? '38px' : '0px',
+                        opacity: authMode === 'register' ? 1 : 0,
+                        marginBottom: authMode === 'register' ? '8px' : '0px',
+                        overflow: 'hidden'
+                      }}
+                    >
                       <input
                         type="password"
                         value={authConfirmPassword}
                         onChange={e => setAuthConfirmPassword(e.target.value)}
                         disabled={authSubmitting}
                         placeholder="Confirm password"
-                        required
+                        required={authMode === 'register'}
                         style={{
                           width: '100%',
-                          height: '44px',
+                          height: '38px',
                           borderRadius: '12px',
                           border: '1px solid rgba(255,255,255,0.2)',
                           background: 'rgba(255,255,255,0.12)',
@@ -942,38 +1001,39 @@ const LandingPage = () => {
                           boxSizing: 'border-box'
                         }}
                       />
-                    )}
+                    </div>
 
-                    <button
-                      type="submit"
-                      disabled={authSubmitting}
-                      style={{
-                        marginTop: '4px',
-                        width: '100%',
-                        height: '44px',
-                        borderRadius: '12px',
-                        border: 'none',
-                        background: '#007aff',
-                        color: '#ffffff',
-                        fontSize: '15px',
-                        fontWeight: '600',
-                        fontFamily: 'var(--font-ui)',
-                        cursor: authSubmitting ? 'not-allowed' : 'pointer',
-                        opacity: authSubmitting ? 0.7 : 1,
-                        transition: 'opacity 0.2s, transform 0.1s',
-                        letterSpacing: '-0.2px'
-                      }}
-                    >
-                      {authSubmitting ? 'Verifying…' : authMode === 'login' ? 'Sign In' : 'Create Account'}
-                    </button>
+                    <div style={{ marginTop: '4px' }}>
+                      <button
+                        type="submit"
+                        disabled={authSubmitting}
+                        style={{
+                          width: '100%',
+                          height: '38px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          background: '#007aff',
+                          color: '#ffffff',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          fontFamily: 'var(--font-ui)',
+                          cursor: authSubmitting ? 'not-allowed' : 'pointer',
+                          opacity: authSubmitting ? 0.7 : 1,
+                          transition: 'opacity 0.2s, transform 0.1s',
+                          letterSpacing: '-0.2px'
+                        }}
+                      >
+                        {authSubmitting ? 'Verifying…' : authMode === 'login' ? 'Sign In' : 'Create Account'}
+                      </button>
+                    </div>
                   </form>
 
-                  <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
+                  <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
                     {authMode === 'login' ? (
                       <span>
                         No account?{' '}
                         <button
-                          onClick={() => { setAuthMode('register'); setAuthError(''); }}
+                          onClick={() => handleSwitchAuthMode('register')}
                           style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', padding: 0, fontWeight: '500', textDecoration: 'underline', fontSize: '12px' }}
                         >
                           Register here
@@ -983,7 +1043,7 @@ const LandingPage = () => {
                       <span>
                         Already registered?{' '}
                         <button
-                          onClick={() => { setAuthMode('login'); setAuthError(''); }}
+                          onClick={() => handleSwitchAuthMode('login')}
                           style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.85)', cursor: 'pointer', padding: 0, fontWeight: '500', textDecoration: 'underline', fontSize: '12px' }}
                         >
                           Sign in
@@ -1045,7 +1105,7 @@ const LandingPage = () => {
 
                   const isFocused = activeApp === appName;
                   const isFullscreen = windowSizes[appName] === 'fullscreen';
-                  
+
                   const defaultX = DEFAULT_WINDOW_POSITIONS[appName]?.x || 80;
                   const defaultY = DEFAULT_WINDOW_POSITIONS[appName]?.y || 50;
                   const pos = windowPositions[appName] || { x: defaultX, y: defaultY };
@@ -1143,10 +1203,10 @@ const LandingPage = () => {
                 )}
 
                 {/* Bottom Translucent Floating Dock */}
-                <div 
-                  className="os-dock-container" 
-                  style={{ 
-                    zIndex: 55, 
+                <div
+                  className="os-dock-container"
+                  style={{
+                    zIndex: 55,
                     position: 'absolute',
                     bottom: 0,
                     paddingBottom: '10px',
