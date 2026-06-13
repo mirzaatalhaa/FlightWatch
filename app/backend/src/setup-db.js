@@ -63,14 +63,16 @@ const runSetup = async () => {
     await clientApp.connect();
     
     // Read schema.sql
-    const schemaPath = path.join(__dirname, '../../database/schema.sql');
+    const schemaPath = path.join(__dirname, '../database/schema.sql');
+    
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     console.log('Applying database schema...');
     await clientApp.query(schemaSql);
     console.log('✓ Database schema applied.');
 
     // Read seed.sql
-    const seedPath = path.join(__dirname, '../../database/seed.sql');
+    const seedPath = path.join(__dirname, '../database/seed.sql');
+    
     const seedSql = fs.readFileSync(seedPath, 'utf8');
     console.log('Seeding database...');
     await clientApp.query(seedSql);
