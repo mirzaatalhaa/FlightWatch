@@ -6,7 +6,8 @@ services:
     env_file:
       - ./app/backend/.env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: on-failure
   
   frontend:
@@ -23,6 +24,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: flightwatch
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d flightwatch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./app/backend/database:/docker-entrypoint-initdb.d
