@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./app/backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./app/backend/.env
+    depends_on:
+      - postgres
+    restart: on-failure
+  
+  frontend:
+    build: ./app/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: on-failure  
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flightwatch
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/backend/database:/docker-entrypoint-initdb.d
+volumes:
+  postgres_data:

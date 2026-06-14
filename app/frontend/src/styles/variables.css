@@ -41,7 +41,7 @@
   --color-hairline: #3a3a3c;         /* Dark border */
 
   /* ── IPados Window System Variables (Dark Theme Default) ── */
-  --window-bg: rgba(28, 28, 30, 0.88);
+  --window-bg: rgb(28, 28, 30);
   --window-border: rgba(255, 255, 255, 0.12);
   --window-list-bg: rgba(255, 255, 255, 0.04);
   --window-list-border: rgba(255, 255, 255, 0.06);
@@ -55,7 +55,7 @@
   --input-focus-bg: rgba(255, 255, 255, 0.12);
   --carrier-btn-bg: rgba(41, 151, 255, 0.12);
   --carrier-btn-border: rgba(41, 151, 255, 0.3);
-  --window-header-bg: rgba(45, 45, 48, 0.65);
+  --window-header-bg: rgb(45, 45, 48);
 }
 
 [data-theme='light'] {
@@ -90,7 +90,7 @@
   --color-hairline: #e0e0e0;         /* Hairline border */
 
   /* ── IPados Window System Variables (Light Mode overrides) ── */
-  --window-bg: rgba(255, 255, 255, 0.88);
+  --window-bg: rgb(255, 255, 255);
   --window-border: rgba(255, 255, 255, 0.4);
   --window-list-bg: rgba(0, 0, 0, 0.03);
   --window-list-border: rgba(0, 0, 0, 0.05);
@@ -104,7 +104,7 @@
   --input-focus-bg: #ffffff;
   --carrier-btn-bg: rgba(0, 102, 204, 0.08);
   --carrier-btn-border: rgba(0, 102, 204, 0.2);
-  --window-header-bg: rgba(245, 245, 247, 0.6);
+  --window-header-bg: rgb(245, 245, 247);
 }
 
 :root {
