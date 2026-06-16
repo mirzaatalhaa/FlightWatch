@@ -7,15 +7,19 @@
 ### Authentication
 
 #### FR-001 — User Registration
+
 The system shall allow users to create an account using:
-- Name
-- Email address
-- Password
+
+* Name
+* Email address
+* Password
 
 #### FR-002 — User Login
+
 The system shall allow registered users to authenticate using their credentials.
 
 #### FR-003 — Session Security
+
 The system shall issue JSON Web Tokens (JWT) for authenticated sessions.
 
 ---
@@ -23,50 +27,59 @@ The system shall issue JSON Web Tokens (JWT) for authenticated sessions.
 ### Aircraft Sighting Management
 
 #### FR-004 — Create Sighting
+
 The system shall allow authenticated users to create a new aircraft sighting.
 
-| Field | Required |
-|---|---|
-| Aircraft Registration | ✅ |
-| Airline | ✅ |
-| Aircraft Type | ✅ |
-| Airport | ✅ |
-| Sighting Date | ✅ |
-| Notes | Optional |
+| Field                 | Required |
+| --------------------- | -------- |
+| Aircraft Registration | ✅        |
+| Airline               | ✅        |
+| Aircraft Type         | ✅        |
+| Airport               | ✅        |
+| Sighting Date         | ✅        |
+| Notes                 | Optional |
 
 #### FR-005 — View Sightings
-The system shall allow users to view all of their previously recorded sightings.
+
+The system shall allow users to view all previously recorded sightings.
 
 #### FR-006 — Edit Sighting
+
 The system shall allow users to modify existing sighting records.
 
 #### FR-007 — Delete Sighting
+
 The system shall allow users to remove sighting records.
 
 #### FR-008 — Search Sightings
+
 The system shall allow users to search sightings by:
-- Registration
-- Airline
-- Aircraft Type
-- Airport
+
+* Registration
+* Airline
+* Aircraft Type
+* Airport
 
 ---
 
-### Dashboard
+### Dashboard & Analytics
 
 #### FR-009 — Statistics Dashboard
+
 The system shall display:
-- Total sightings
-- Unique aircraft count
-- Unique airline count
-- Most frequently spotted airline
-- Most frequently spotted aircraft type
+
+* Total sightings
+* Unique aircraft count
+* Unique airline count
+* Most frequently spotted airline
+* Most frequently spotted aircraft type
 
 ---
 
 ### User Data Protection
 
 #### FR-010 — User Isolation
+
 Users shall only be able to access their own records.
 
 ---
@@ -76,61 +89,144 @@ Users shall only be able to access their own records.
 ### Performance
 
 #### NFR-001 — Response Time
+
 API requests should respond within two seconds under normal load.
+
+#### NFR-002 — Frontend Performance
+
+Static assets should be delivered through Amazon CloudFront to minimize latency and improve page load times.
+
+---
 
 ### Availability
 
-#### NFR-002 — Service Availability
-The application should remain operational while the EC2 instance is running.
+#### NFR-003 — Service Availability
+
+The frontend application should remain available through CloudFront and Amazon S3 website hosting.
+
+---
 
 ### Security
 
-#### NFR-003 — Password Security
+#### NFR-004 — Password Security
+
 Passwords must be stored using bcrypt hashing.
 
-#### NFR-004 — Protected Routes
-Authenticated endpoints must require a valid JWT token.
+#### NFR-005 — Protected Routes
+
+Authenticated API endpoints must require a valid JWT token.
+
+#### NFR-006 — HTTPS Encryption
+
+All public traffic must be encrypted using SSL/TLS certificates managed through AWS Certificate Manager (ACM).
+
+#### NFR-007 — DNS Security
+
+DNS records shall be managed through Amazon Route 53.
+
+---
 
 ### Scalability
 
-#### NFR-005 — Modular Architecture
-Application layers must remain independent to support future scaling.
+#### NFR-008 — Layer Separation
+
+Frontend, backend, and database components shall remain logically separated to support future scaling.
+
+#### NFR-009 — Cloud-Native Architecture
+
+Application services shall be designed to support migration to managed AWS services and distributed deployments.
+
+---
 
 ### Maintainability
 
-#### NFR-006 — Source Control
-All code shall be maintained in Git.
+#### NFR-010 — Source Control
 
-#### NFR-007 — Infrastructure as Code
-Infrastructure must be defined using Terraform.
+All source code shall be maintained in Git repositories.
+
+#### NFR-011 — Infrastructure as Code
+
+Infrastructure must be provisioned and managed using Terraform.
+
+#### NFR-012 — Modular Infrastructure
+
+Terraform configurations should be organized to support future infrastructure expansion.
+
+---
 
 ### Reliability
 
-#### NFR-008 — Containerized Deployment
-Application services must run inside Docker containers.
+#### NFR-013 — Persistent Data Storage
 
-#### NFR-009 — Persistent Data Storage
-PostgreSQL data must persist through Docker volumes.
+Application data shall be stored in PostgreSQL and persist independently of application deployments.
+
+#### NFR-014 — Managed DNS
+
+Domain resolution shall be managed through Route 53 hosted zones.
+
+#### NFR-015 — Global Content Delivery
+
+Frontend assets shall be distributed through CloudFront edge locations.
+
+---
 
 ### Deployment
 
-#### NFR-010 — Automated Deployment
-Code changes merged to the main branch should trigger automated deployment through GitHub Actions.
+#### NFR-016 — Automated Deployment
+
+Code changes merged into the main branch should trigger automated deployment workflows through GitHub Actions.
+
+#### NFR-017 — Frontend Deployment
+
+Frontend build artifacts shall be deployed to Amazon S3.
+
+#### NFR-018 — Infrastructure Automation
+
+Infrastructure changes shall be deployed through Terraform.
 
 ---
 
 ## Assumptions
 
-- Users have internet connectivity.
-- AWS infrastructure is operational.
-- Docker is installed on the deployment server.
-- GitHub Actions runners are available.
+* Users have internet connectivity.
+* AWS services are operational.
+* GitHub Actions runners are available.
+* Route 53 is configured as the authoritative DNS provider.
+* ACM certificates are available for public HTTPS access.
 
 ---
 
 ## Constraints
 
-- AWS Free Tier resources will be used whenever possible.
-- Single EC2 instance deployment.
-- Single PostgreSQL instance.
-- Budget-conscious infrastructure design.
+* AWS promotional credits and budget-conscious resource usage will be prioritized.
+* A single production environment will be maintained initially.
+* PostgreSQL will be deployed as a single database instance during the initial phase.
+* Infrastructure will be provisioned through Terraform.
+* Frontend hosting will utilize Amazon S3 and CloudFront.
+
+---
+
+## Current Scope
+
+### Completed
+
+* Terraform networking infrastructure
+* VPC creation
+* Public subnet configuration
+* Internet Gateway configuration
+* Route table configuration
+* Security group configuration
+* S3 static website hosting
+* CloudFront CDN deployment
+* Route 53 hosted zone configuration
+* ACM certificate request and DNS validation setup
+
+### Planned
+
+* Node.js / Express backend deployment
+* PostgreSQL database deployment
+* User authentication
+* Aircraft sighting management APIs
+* Analytics dashboard
+* GitHub Actions CI/CD pipeline
+* CloudWatch monitoring and logging
