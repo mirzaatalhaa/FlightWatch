@@ -847,7 +847,7 @@ const LandingPage = () => {
                       color: 'rgba(255,255,255,0.6)',
                       marginTop: '2px'
                     }}>
-                      {authMode === 'login' ? 'Sign in to FlightWatch OS' : 'Register as a new operator'}
+                      {authMode === 'login' ? 'Sign in to FlightWatch' : 'Register as a new operator'}
                     </div>
                   </div>
 
