@@ -5,7 +5,7 @@ resource "aws_cloudfront_distribution" "flightwatch_frontend" {
   aliases = ["flight-watch.xyz"]
 
   origin {
-    domain_name = aws_s3_bucket.flightwatch_frontend.website_endpoint
+    domain_name = aws_s3_bucket_website_configuration.flightwatch_frontend_website.website_endpoint
     origin_id   = "flightwatch-s3-origin"
 
     custom_origin_config {
