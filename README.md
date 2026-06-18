@@ -101,9 +101,89 @@ terraform plan
 terraform apply
 ```
 
-## Further enhancements
+---
 
-- Monitoring
-- CI/CD
+# 📚 Key Learnings
+
+This project provided hands-on experience with:
+
+- Infrastructure as Code (Terraform)
+- AWS Networking
+- VPC Design
+- Public and Private Subnets
+- Security Groups
+- Docker Containerization
+- PostgreSQL on RDS
+- Reverse Proxy Configuration with Nginx
+- DNS Management with Route 53
+- CloudFront Content Delivery
+- SSL/TLS Configuration
+- Production Deployment Workflows
+- Debugging Real-World Infrastructure Issues
 
 ---
+
+# 🔧 Challenges Solved
+
+### bcrypt Docker Issue
+
+Problem:
+
+```text
+bcrypt_lib.node: Exec format error
+```
+
+Cause:
+
+```text
+Windows node_modules were copied into the Linux container.
+```
+
+Solution:
+
+```text
+Excluded node_modules from Docker build context and rebuilt
+dependencies inside the Linux container.
+```
+
+---
+
+### RDS SSL Connection Issue
+
+Problem:
+
+```text
+no pg_hba.conf entry for host ...
+```
+
+Cause:
+
+```text
+RDS required encrypted connections.
+```
+
+Solution:
+
+```text
+Enabled SSL support in PostgreSQL connection configuration.
+```
+
+---
+
+# 🚀 Future Improvements
+
+- GitHub Actions CI/CD
+- AWS Secrets Manager
+- CloudWatch Monitoring
+- Application Load Balancer
+- ECS/Fargate Deployment
+- Automated Backend Deployments
+- Infrastructure Modularization
+- Enhanced Analytics Dashboard
+
+
+
+
+---
+
+⭐ If you found this project interesting, consider starring the repository.
