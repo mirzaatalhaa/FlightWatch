@@ -1,4 +1,4 @@
-# ✈️ FlightWatch
+# ✈️ FlightWatch (in-progress)
 
 FlightWatch is a full-stack aircraft sighting application that allows aviation enthusiasts to record, manage, and explore aircraft sightings. The project is deployed on AWS using Infrastructure as Code (Terraform) and follows a production-style architecture with a React frontend, Node.js backend, and PostgreSQL database.
 
