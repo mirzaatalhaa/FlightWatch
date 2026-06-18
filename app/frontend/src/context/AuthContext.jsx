@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { MOCK_USERS } from '../data/mockData';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   const login = (email, password) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const res = await fetch('/api/v1/auth/login', {
+        const res = await fetch(`${API_URL}/api/v1/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
   const register = (name, email, password) => {
     return new Promise(async (resolve, reject) => {
       try {
-        const res = await fetch('/api/v1/auth/register', {
+        const res = await fetch(`${API_URL}/api/v1/auth/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch('/api/v1/auth/profile', {
+      const res = await fetch(`${API_URL}/api/v1/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

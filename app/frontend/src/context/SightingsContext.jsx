@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_SIGHTINGS } from '../data/mockData';
 import { useAuth } from './AuthContext';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const SightingsContext = createContext(null);
 
@@ -35,7 +36,7 @@ export const SightingsProvider = ({ children }) => {
 
     try {
       // Fetch sightings
-      const sightingsRes = await fetch('/api/v1/sightings', {
+      const sightingsRes = await fetch(`${API_URL}/api/v1/sightings`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -46,7 +47,7 @@ export const SightingsProvider = ({ children }) => {
       }
 
       // Fetch analytics
-      const analyticsRes = await fetch('/api/v1/analytics', {
+      const analyticsRes = await fetch(`${API_URL}/api/v1/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -70,7 +71,7 @@ export const SightingsProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch('/api/v1/sightings', {
+      const res = await fetch(`${API_URL}/api/v1/sightings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ export const SightingsProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch(`/api/v1/sightings/${id}`, {
+      const res = await fetch(`${API_URL}/api/v1/sightings/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +118,7 @@ export const SightingsProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch(`/api/v1/sightings/${id}`, {
+      const res = await fetch(`${API_URL}/api/v1/sightings/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
