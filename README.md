@@ -1,317 +1,109 @@
-# ✈️ FlightWatch
+# FlightWatch ✈️
 
-FlightWatch is a full-stack aircraft sighting application that allows aviation enthusiasts to record, manage, and explore aircraft sightings. The project is deployed on AWS using Infrastructure as Code (Terraform) and follows a production-style architecture with a React frontend, Node.js backend, and PostgreSQL database.
+FlightWatch is a web application for plane spotters to log and track aircraft sightings. It combines a React frontend, a Node.js/Express backend, and real-time aviation data, deployed on a production-style AWS architecture.
 
-## 🌐 Live Demo
-
-- Frontend: https://flight-watch.xyz
-- API: https://api.flight-watch.xyz
+🔗 **Live demo:** [https://flight-watch.xyz](https://flight-watch.xyz)
 
 ---
 
-# 🏗️ Architecture
+## Screenshots
 
-```text
-User
-  │
-  ▼
-Route 53
-  │
-  ▼
-CloudFront
-  │
-  ▼
-S3 Static Website
-(React Frontend)
+<!-- Add screenshots below. Recommended: dashboard, sighting log form, aircraft details view, login/register screens -->
 
-User
-  │
-  ▼
-api.flight-watch.xyz
-  │
-  ▼
-Nginx Reverse Proxy
-  │
-  ▼
-Docker Container
-(Node.js + Express Backend)
-  │
-  ▼
-Amazon RDS PostgreSQL
-(Private Subnets)
-```
+| | |
+|---|---|
+| ![Dashboard](./screenshots/dashboard.png) | ![Sighting Log](./screenshots/sighting-log.png) |
+| ![Aircraft Details](./screenshots/aircraft-details.png) | ![Login](./screenshots/login.png) |
 
 ---
 
-# ☁️ AWS Services Used
+## Features
 
-- Amazon EC2
-- Amazon RDS (PostgreSQL)
-- Amazon S3
-- Amazon CloudFront
-- Amazon Route 53
-- AWS Certificate Manager (ACM)
-- Amazon VPC
+- Log and track aircraft sightings with timestamps and location data
+- Integration with external aviation data APIs for live aircraft information
+- User registration and authentication
+- Persistent sighting history backed by PostgreSQL
+- Responsive React frontend
+
+## Tech Stack
+
+**Frontend**
+- React
+- Hosted on S3, delivered via CloudFront
+
+**Backend**
+- Node.js + Express
+- Dockerized, deployed on EC2
+- Nginx as a reverse proxy
+- Let's Encrypt SSL certificate
+
+**Database**
+- PostgreSQL on Amazon RDS (private subnet)
+
+**Infrastructure**
+- Terraform (Infrastructure as Code)
+- Docker & Docker Compose
+
+## Architecture
+
+![FlightWatch architecture overview](./screenshots/architecture-diagram.png)
+
+The diagram above covers the full request flow: the frontend is hosted on S3 and delivered via CloudFront, the backend runs in a Docker container on EC2 behind an Nginx reverse proxy secured with Let's Encrypt, and PostgreSQL runs on RDS in private subnets that are not publicly accessible. Route 53 manages DNS for the custom domain and API subdomain.
+
+## AWS Services Used
+
+- EC2
+- RDS PostgreSQL
+- S3
+- CloudFront
+- Route 53
+- ACM (Certificate Manager)
+- VPC
 - Security Groups
 - Internet Gateway
 
----
+## Getting Started (Local Development)
 
-# 🚀 Features
+### Prerequisites
+- Node.js (v18+)
+- Docker & Docker Compose
+- PostgreSQL (or use the provided Docker container)
 
-- User Registration & Authentication
-- JWT-Based Authorization
-- Record Aircraft Sightings
-- View Aircraft Sightings
-- PostgreSQL Database Storage
-- Responsive React Frontend
-- HTTPS Enabled
-- Custom Domain Configuration
-- Dockerized Backend
-- Infrastructure as Code with Terraform
+### Setup
 
----
+1. Clone the repository
+   ```bash
+   git clone https://github.com/<your-username>/flightwatch.git
+   cd flightwatch
+   ```
 
-# 🛠️ Tech Stack
+2. Set up environment variables
+   ```bash
+   cp .env.example .env
+   # Fill in your database credentials and API keys
+   ```
 
-### Frontend
-- React
-- Vite
-- Context API
-- CSS
+3. Start the application with Docker Compose
+   ```bash
+   docker-compose up --build
+   ```
 
-### Backend
-- Node.js
-- Express.js
-- JWT
-- bcrypt
+4. The frontend will be available at `http://localhost:3000` and the backend API at `http://localhost:5000`
 
-### Database
-- PostgreSQL
+## Infrastructure (Terraform)
 
-### Infrastructure
-- Terraform
-- AWS
-- Docker
-- Nginx
-
----
-
-# 📁 Project Structure
-
-```text
-FlightWatch/
-│
-├── app/
-│   ├── frontend/
-│   │   ├── src/
-│   │   └── public/
-│   │
-│   └── backend/
-│       ├── src/
-│       ├── database/
-│       └── Dockerfile
-│
-├── terraform/
-│   ├── vpc.tf
-│   ├── ec2.tf
-│   ├── rds.tf
-│   ├── s3.tf
-│   ├── cloudfront.tf
-│   └── route53.tf
-│
-└── docker-compose.yml
-```
-
----
-
-# 🔐 Security
-
-### Database Security
-
-- RDS is deployed inside private subnets.
-- Database is not publicly accessible.
-- Access is restricted through Security Groups.
-
-### HTTPS
-
-Frontend:
-
-```text
-https://flight-watch.xyz
-```
-
-secured using:
-
-- AWS ACM
-- CloudFront
-
-Backend:
-
-```text
-https://api.flight-watch.xyz
-```
-
-secured using:
-
-- Nginx
-- Let's Encrypt SSL Certificate
-
----
-
-# 🐳 Backend Deployment
-
-Clone repository:
+The `infrastructure/` directory contains Terraform configuration for provisioning the AWS resources described above, including the VPC, subnets, security groups, EC2 instance, RDS instance, S3 bucket, CloudFront distribution, Route 53 records, and ACM certificate.
 
 ```bash
-git clone https://github.com/mirzaatalhaa/FlightWatch.git
-cd FlightWatch
-```
-
-Build Docker image:
-
-```bash
-docker build -t flightwatch-backend ./app/backend
-```
-
-Run container:
-
-```bash
-docker run -d \
-  --name flightwatch-backend \
-  -p 5000:5000 \
-  --env-file app/backend/.env \
-  flightwatch-backend
-```
-
----
-
-# 🗄️ Database Setup
-
-Apply schema:
-
-```bash
-psql "<DATABASE_URL>" < app/backend/database/schema.sql
-```
-
-Verify tables:
-
-```sql
-\dt
-```
-
-Expected:
-
-```text
-users
-sightings
-```
-
----
-
-# 🏗️ Infrastructure Deployment
-
-Initialize Terraform:
-
-```bash
+cd infrastructure
 terraform init
-```
-
-Review changes:
-
-```bash
 terraform plan
-```
-
-Deploy infrastructure:
-
-```bash
 terraform apply
 ```
 
----
+## Further enhancements
 
-# 📚 Key Learnings
-
-This project provided hands-on experience with:
-
-- Infrastructure as Code (Terraform)
-- AWS Networking
-- VPC Design
-- Public and Private Subnets
-- Security Groups
-- Docker Containerization
-- PostgreSQL on RDS
-- Reverse Proxy Configuration with Nginx
-- DNS Management with Route 53
-- CloudFront Content Delivery
-- SSL/TLS Configuration
-- Production Deployment Workflows
-- Debugging Real-World Infrastructure Issues
+- Monitoring
+- CI/CD
 
 ---
-
-# 🔧 Challenges Solved
-
-### bcrypt Docker Issue
-
-Problem:
-
-```text
-bcrypt_lib.node: Exec format error
-```
-
-Cause:
-
-```text
-Windows node_modules were copied into the Linux container.
-```
-
-Solution:
-
-```text
-Excluded node_modules from Docker build context and rebuilt
-dependencies inside the Linux container.
-```
-
----
-
-### RDS SSL Connection Issue
-
-Problem:
-
-```text
-no pg_hba.conf entry for host ...
-```
-
-Cause:
-
-```text
-RDS required encrypted connections.
-```
-
-Solution:
-
-```text
-Enabled SSL support in PostgreSQL connection configuration.
-```
-
----
-
-# 🚀 Future Improvements
-
-- GitHub Actions CI/CD
-- AWS Secrets Manager
-- CloudWatch Monitoring
-- Application Load Balancer
-- ECS/Fargate Deployment
-- Automated Backend Deployments
-- Infrastructure Modularization
-- Enhanced Analytics Dashboard
-
-
-
-
----
-
-⭐ If you found this project interesting, consider starring the repository.
