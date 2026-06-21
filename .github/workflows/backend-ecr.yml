@@ -35,3 +35,13 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push 424322298959.dkr.ecr.ap-south-1.amazonaws.com/flightwatch-backend:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo /home/ubuntu/flightwatch/deploy.sh
+            
