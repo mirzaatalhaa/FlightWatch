@@ -1,14 +1,12 @@
 # FlightWatch ✈️
 
-FlightWatch is a web application for plane spotters to log and track aircraft sightings. It combines a React frontend, a Node.js/Express backend, and real-time aviation data, deployed on a production-style AWS architecture.
+FlightWatch is a full-stack cloud-native aviation tracking and analytics platform for aviation enthusiasts to record, manage, and analyze aircraft sightings through a modern web application. Users can securely create accounts, authenticate via JWT, log aircraft sightings, and access aviation data through a responsive React/Vite interface.
 
 🔗 **Live demo:** [https://flight-watch.xyz](https://flight-watch.xyz)
 
 ---
 
 ## Screenshots
-
-<!-- Add screenshots below. Recommended: dashboard, sighting log form, aircraft details view, login/register screens -->
 
 | | |
 |---|---|
@@ -21,18 +19,21 @@ FlightWatch is a web application for plane spotters to log and track aircraft si
 
 - Log and track aircraft sightings with timestamps and location data
 - Integration with external aviation data APIs for live aircraft information
-- User registration and authentication
-- Persistent sighting history backed by PostgreSQL
-- Responsive React frontend
+- JWT-based user registration and authentication with bcryptjs password hashing
+- Persistent sighting history backed by PostgreSQL on Amazon RDS
+- Responsive React/Vite frontend with fast global delivery via CloudFront
+- Fully automated CI/CD — push to GitHub, everything else is handled automatically
+
+---
 
 ## Tech Stack
 
 **Frontend**
-- React
-- Hosted on S3, delivered via CloudFront
+- React + Vite
+- Hosted on S3, delivered globally via CloudFront
 
 **Backend**
-- Node.js + Express
+- Node.js + Express (RESTful APIs)
 - Dockerized, deployed on EC2
 - Nginx as a reverse proxy
 - Let's Encrypt SSL certificate
@@ -43,24 +44,99 @@ FlightWatch is a web application for plane spotters to log and track aircraft si
 **Infrastructure**
 - Terraform (Infrastructure as Code)
 - Docker & Docker Compose
+- GitHub Actions CI/CD
+
+---
 
 ## Architecture
 
 ![FlightWatch architecture overview](./screenshots/architecture-diagram.png)
 
-The diagram above covers the full request flow: the frontend is hosted on S3 and delivered via CloudFront, the backend runs in a Docker container on EC2 behind an Nginx reverse proxy secured with Let's Encrypt, and PostgreSQL runs on RDS in private subnets that are not publicly accessible. Route 53 manages DNS for the custom domain and API subdomain.
+The frontend is hosted on S3 and globally distributed through CloudFront for low-latency delivery. The backend runs as a Docker container on EC2 behind an Nginx reverse proxy secured with a Let's Encrypt SSL certificate. PostgreSQL runs on RDS inside private subnets with no public access — only the backend EC2 instance can reach it via security group rules. Route 53 manages DNS for the custom domain and API subdomain. All infrastructure is provisioned with Terraform, and deployments are fully automated through GitHub Actions.
+
+---
 
 ## AWS Services Used
 
 - EC2
-- RDS PostgreSQL
+- RDS (PostgreSQL)
 - S3
 - CloudFront
+- ECR (Elastic Container Registry)
 - Route 53
 - ACM (Certificate Manager)
-- VPC
+- VPC, Subnets, Internet Gateway, Route Tables
 - Security Groups
-- Internet Gateway
+- IAM Roles & Instance Profiles
+
+---
+
+## CI/CD Pipeline
+
+FlightWatch uses two independent GitHub Actions workflows — one for the backend and one for the frontend. Every push to `main` triggers both.
+
+### Backend Pipeline
+
+```
+Push to main
+  → Checkout code
+  → Authenticate with AWS (IAM credentials via GitHub Secrets)
+  → Build Docker image from backend source
+  → Push image to Amazon ECR
+  → SSH into EC2
+  → EC2 authenticates with ECR via IAM Role & Instance Profile
+  → Pull latest image
+  → Stop & remove running container
+  → Launch new container with .env and restart policy
+  → Backend connects to RDS PostgreSQL in private subnet
+```
+
+### Frontend Pipeline
+
+```
+Push to main
+  → Checkout code
+  → Install dependencies
+  → Vite production build → dist/
+  → Upload dist/ to S3
+  → Invalidate CloudFront cache
+  → Users receive latest version immediately
+```
+
+---
+
+## Infrastructure (Terraform)
+
+All AWS resources are defined as code in the `infrastructure/` directory:
+
+- VPC with public and private subnets
+- Route tables and Internet Gateway
+- Security groups (EC2, RDS, CloudFront)
+- EC2 instance with IAM Role and Instance Profile
+- RDS PostgreSQL instance (private subnet)
+- S3 bucket (static website hosting)
+- CloudFront distribution
+- IAM roles and policies
+
+```bash
+cd infrastructure
+terraform init
+terraform plan
+terraform apply
+```
+
+---
+
+## Security
+
+- **JWT authentication** for all protected API routes
+- **bcryptjs** for password hashing
+- **Security groups** restrict RDS access to the EC2 backend instance only
+- **IAM roles** with least-privilege policies; no long-lived credentials on EC2
+- **Private subnets** for the database — not publicly accessible
+- **Environment-based configuration** via `.env` files, never committed to source control
+
+---
 
 ## Getting Started (Local Development)
 
@@ -88,102 +164,56 @@ The diagram above covers the full request flow: the frontend is hosted on S3 and
    docker-compose up --build
    ```
 
-4. The frontend will be available at `http://localhost:3000` and the backend API at `http://localhost:5000`
-
-## Infrastructure (Terraform)
-
-The `infrastructure/` directory contains Terraform configuration for provisioning the AWS resources described above, including the VPC, subnets, security groups, EC2 instance, RDS instance, S3 bucket, CloudFront distribution, Route 53 records, and ACM certificate.
-
-```bash
-cd infrastructure
-terraform init
-terraform plan
-terraform apply
-```
+4. Frontend: `http://localhost:3000` — Backend API: `http://localhost:5000`
 
 ---
 
-# 📚 Key Learnings
-
-This project provided hands-on experience with:
-
-- Infrastructure as Code (Terraform)
-- AWS Networking
-- VPC Design
-- Public and Private Subnets
-- Security Groups
-- Docker Containerization
-- PostgreSQL on RDS
-- Reverse Proxy Configuration with Nginx
-- DNS Management with Route 53
-- CloudFront Content Delivery
-- SSL/TLS Configuration
-- Production Deployment Workflows
-- Debugging Real-World Infrastructure Issues
-
----
-
-# 🔧 Challenges Solved
+## Challenges Solved
 
 ### bcrypt Docker Issue
 
-Problem:
+**Problem:** `bcrypt_lib.node: Exec format error`
 
-```text
-bcrypt_lib.node: Exec format error
-```
+**Cause:** Windows-compiled `node_modules` were copied into the Linux container.
 
-Cause:
-
-```text
-Windows node_modules were copied into the Linux container.
-```
-
-Solution:
-
-```text
-Excluded node_modules from Docker build context and rebuilt
-dependencies inside the Linux container.
-```
+**Solution:** Excluded `node_modules` from the Docker build context so dependencies are compiled inside the Linux container.
 
 ---
 
 ### RDS SSL Connection Issue
 
-Problem:
+**Problem:** `no pg_hba.conf entry for host ...`
 
-```text
-no pg_hba.conf entry for host ...
-```
+**Cause:** RDS requires encrypted connections by default.
 
-Cause:
-
-```text
-RDS required encrypted connections.
-```
-
-Solution:
-
-```text
-Enabled SSL support in PostgreSQL connection configuration.
-```
+**Solution:** Enabled SSL support in the PostgreSQL connection configuration.
 
 ---
 
-# 🚀 Future Improvements
+## Key Learnings
 
-- GitHub Actions CI/CD
-- AWS Secrets Manager
-- CloudWatch Monitoring
+- Infrastructure as Code with Terraform
+- VPC design — public/private subnets, route tables, Internet Gateway
+- Security groups and IAM least-privilege access
+- Docker containerization and ECR image management
+- CI/CD automation with GitHub Actions (build, push, deploy, invalidate)
+- PostgreSQL on RDS in private subnets
+- Nginx reverse proxy and SSL/TLS configuration
+- DNS management with Route 53
+- CloudFront content delivery and cache invalidation
+- JWT authentication and secure API design
+- Production debugging and real-world infrastructure troubleshooting
+
+---
+
+## Future Improvements
+
+- AWS Secrets Manager for credential management
+- CloudWatch monitoring and alerting
 - Application Load Balancer
-- ECS/Fargate Deployment
-- Automated Backend Deployments
-- Infrastructure Modularization
-- Enhanced Analytics Dashboard
-
-
-
+- ECS/Fargate migration
+- Infrastructure modularization
+- Enhanced analytics dashboard
 
 ---
 
-⭐ If you found this project interesting, consider starring the repository.
