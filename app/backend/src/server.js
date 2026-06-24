@@ -45,10 +45,10 @@ app.use(limiter);
 app.use(express.json());
 
 // Routes mounting
+app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/sightings', sightingsRoutes);
 app.use('/api/v1', statsRoutes);
-app.use('/api/v1/health', healthRoutes);
 
 // Wildcard 404 handler
 app.use((req, res, next) => {
