@@ -1,6 +1,6 @@
 # FlightWatch ✈️
 
-FlightWatch is a full-stack cloud-native aviation tracking and analytics platform for aviation enthusiasts to record, manage, and analyze aircraft sightings through a modern web application. Users can securely create accounts, authenticate via JWT, log aircraft sightings, and access aviation data through a responsive React/Vite interface.
+FlightWatch is a full-stack cloud-native aviation tracking and logging platform for aviation enthusiasts to record, manage, and review aircraft sightings through a modern web application. Users can securely create accounts, authenticate via JWT, log aircraft sightings, and browse their sighting history through a responsive React/Vite interface.
 
 🔗 **Live demo:** [https://flight-watch.xyz](https://flight-watch.xyz)
 
@@ -18,7 +18,7 @@ FlightWatch is a full-stack cloud-native aviation tracking and analytics platfor
 ## Features
 
 - Log and track aircraft sightings with timestamps and location data
-- Integration with external aviation data APIs for live aircraft information
+- Manually record aircraft details (type, registration, airline, notes) for each sighting
 - JWT-based user registration and authentication with bcryptjs password hashing
 - Persistent sighting history backed by PostgreSQL on Amazon RDS
 - Responsive React/Vite frontend with fast global delivery via CloudFront
@@ -156,7 +156,7 @@ terraform apply
 2. Set up environment variables
    ```bash
    cp .env.example .env
-   # Fill in your database credentials and API keys
+   # Fill in your database credentials
    ```
 
 3. Start the application with Docker Compose
@@ -206,14 +206,5 @@ terraform apply
 
 ---
 
-## Future Improvements
 
-- AWS Secrets Manager for credential management
-- CloudWatch monitoring and alerting
-- Application Load Balancer
-- ECS/Fargate migration
-- Infrastructure modularization
-- Enhanced analytics dashboard
-
----
 
