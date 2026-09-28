@@ -45,4 +45,4 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo /home/ubuntu/flightwatch/deploy.sh
+            sudo /home/ubuntu/deploy.sh
