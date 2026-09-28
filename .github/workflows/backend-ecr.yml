@@ -46,3 +46,19 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo /home/ubuntu/deploy.sh
+
+      - name: Test EC2 Connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Connected user:"
+            whoami
+        
+            echo "Hostname:"
+            hostname
+        
+            echo "Deploy script:"
+            ls -la /home/ubuntu/deploy.sh
