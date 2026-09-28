@@ -30,11 +30,13 @@ jobs:
 
       - name: Tag Docker Image
         run: |
-          docker tag flightwatch-backend:latest 424322298959.dkr.ecr.ap-south-1.amazonaws.com/flightwatch-backend:latest
+          docker tag flightwatch-backend:latest \
+            ${{ steps.login-ecr.outputs.registry }}/flightwatch-backend:latest
 
       - name: Push Docker Image
         run: |
-          docker push 424322298959.dkr.ecr.ap-south-1.amazonaws.com/flightwatch-backend:latest
+          docker push \
+            ${{ steps.login-ecr.outputs.registry }}/flightwatch-backend:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -44,4 +46,3 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo /home/ubuntu/flightwatch/deploy.sh
-            
