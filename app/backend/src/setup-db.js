@@ -34,15 +34,20 @@ const postgresDbUrl = parseDbUrl(dbUrl, 'postgres');
 
 const runSetup = async () => {
   console.log('Starting FlightWatch database initialization...');
-  
+
   // Step 1: Create flightwatch Database if it doesn't exist
-  const clientPostgres = new pg.Client({ connectionString: postgresDbUrl });
+  const clientPostgres = new pg.Client({
+    connectionString: postgresDbUrl,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
   try {
     await clientPostgres.connect();
     const checkDb = await clientPostgres.query(
       `SELECT 1 FROM pg_database WHERE datname = 'flightwatch'`
     );
-    
+
     if (checkDb.rows.length === 0) {
       console.log('Database "flightwatch" does not exist. Creating...');
       await clientPostgres.query('CREATE DATABASE flightwatch');
@@ -58,13 +63,18 @@ const runSetup = async () => {
   }
 
   // Step 2: Initialize Schema and Seeds inside flightwatch database
-  const clientApp = new pg.Client({ connectionString: dbUrl });
+  const clientApp = new pg.Client({
+    connectionString: dbUrl,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
   try {
     await clientApp.connect();
-    
+
     // Read schema.sql
     const schemaPath = path.join(__dirname, '../database/schema.sql');
-    
+
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     console.log('Applying database schema...');
     await clientApp.query(schemaSql);
@@ -72,12 +82,12 @@ const runSetup = async () => {
 
     // Read seed.sql
     const seedPath = path.join(__dirname, '../database/seed.sql');
-    
+
     const seedSql = fs.readFileSync(seedPath, 'utf8');
     console.log('Seeding database...');
     await clientApp.query(seedSql);
     console.log('✓ Seed data populated successfully.');
-    
+
     console.log('\n=========================================');
     console.log('✓ Database Setup Complete!');
     console.log('=========================================\n');

@@ -52,7 +52,7 @@ resource "aws_cloudfront_distribution" "flightwatch_frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:424322298959:certificate/c8866cbd-9873-4ba7-8d2b-4d0c3d93116a"
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:401046276849:certificate/1de10b3d-3d53-4a4f-b223-f50143ac17eb"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }

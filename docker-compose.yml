@@ -5,18 +5,27 @@ services:
       - "5000:5000"
     env_file:
       - ./app/backend/.env
+    environment:
+      NODE_ENV: development
     depends_on:
       postgres:
         condition: service_healthy
     restart: on-failure
-  
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otelcol/config.yaml:ro
+    restart: on-failure
+
   frontend:
     build: ./app/frontend
     ports:
       - "80:80"
     depends_on:
       - backend
-    restart: on-failure  
+    restart: on-failure
 
   postgres:
     image: postgres:15-alpine
@@ -24,7 +33,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: flightwatch
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d flightwatch"]
       interval: 10s
@@ -33,5 +41,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./app/backend/database:/docker-entrypoint-initdb.d
+
 volumes:
   postgres_data:
