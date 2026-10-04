@@ -5,9 +5,9 @@ const { Pool } = pg;
 
 const pool = new Pool({
   connectionString: config.databaseUrl,
-  ssl: config.isProd
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl: {
+  rejectUnauthorized: false,
+},
 });
 pool.on('error', (err) => {
   console.error('Unexpected database pool error:', err);
